@@ -32,8 +32,6 @@
 
 2. 然后根据 operation 选择使用 merge 方式或者 replace 方式将当前内容与前一项得到的配置内容合并处理。
 
-****
-
 **merge 方式**
 
 merge 方式下如果 yaml 文件一级键的值是数组，合并时会将新的内容追加到数组后。
@@ -117,7 +115,7 @@ services:
     image: mailth/clashmerge:latest
     network_mode: host
     environment:
-      PORT: 11011
+      PORT: 8081 # 服务端口
       LOG_LEVEL: error # debug, info, warn, error.
     volumes:
       - "./_data:/data"
