@@ -1,4 +1,4 @@
-# ## clashmerge
+# clashmerge
 
 用于将多个的 clash 配置文件合并成一个。也可以实现在某个 clash 配置的基础上进行修改。
 
