@@ -1,0 +1,7 @@
+num: 3
+new_num: 4
+list: ["dave", "eric"]
+list2: ["eric"]
+obj:
+  name: bob
+  color: blue

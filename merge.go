@@ -5,6 +5,9 @@ import (
 )
 
 func doMerge(data map[string]any, items []*ConfigItem) (map[string]any, error) {
+	if data == nil {
+		data = make(map[string]any)
+	}
 	for _, item := range items {
 		var err error
 		data, err = merge(data, item.Data, item.Operation)
@@ -36,11 +39,17 @@ func merge(conf1, conf2 map[string]any, operation string) (map[string]any, error
 
 
 func mergeVal(val1, val2 any) (any, error) {
+	if val2 == nil {
+		return val1, nil
+	}
+
 	switch v1 := val1.(type) {
 	case []any:
 		switch v2 := val2.(type) {
 		case []any:
-			return append(v1, v2...), nil
+			res := append(v1, v2...) 
+			res = dedup(res)
+			return res, nil
 		default:
 			return nil, errors.New("append operation not supported for non-list types")
 		}
@@ -57,4 +66,18 @@ func mergeVal(val1, val2 any) (any, error) {
 	default:
 		return val2,nil
 	}
+}
+
+func dedup[T comparable](list []T) []T {
+	seen := make(map[T]struct{})
+	result := make([]T, 0)
+	
+	for _, item := range list {
+		if _, exists := seen[item]; !exists {
+			seen[item] = struct{}{}
+			result = append(result, item)
+		}
+	}
+	
+	return result
 }

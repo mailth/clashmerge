@@ -1,0 +1,15 @@
+- operation: merge 
+  type: data 
+  data: 
+    num: 2
+    list: ["dave"]
+    list2: ["eric"]
+    obj:
+      name: ace
+      color: red
+- operation: replace
+  type: data
+  data: 
+    num: 3
+    list: ["dave"]
+    obj: {}
