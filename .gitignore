@@ -1,0 +1,5 @@
+.idea
+.idea/*
+log/*
+config/*
+!config/.config.yaml

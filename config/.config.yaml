@@ -1,0 +1,27 @@
+- operation: merge
+  type: url
+  data: https://example.com/data.yaml
+- operation: merge
+  type: data
+  data:
+    num: 1
+    list: ["ace","bob","cindy"]
+    obj:
+      name: "alice"
+      age: 20
+
+- operation: merge
+  type: data
+  data:
+    num: 2
+    list: ["dave"]
+    list2: ["eric"]
+    obj:
+      age: 21
+      color: red
+
+- operation: replace
+  type: data
+  data:
+    num: 2
+    list2: ["dave"]
