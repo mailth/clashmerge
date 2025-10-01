@@ -1,0 +1,42 @@
+port: 7890
+socks-port: 7891
+allow-lan: true
+mode: Rule
+log-level: info
+external-controller: :9090
+dns:
+  enabled: true
+  default-nameserver:
+    - 223.5.5.5
+    - 114.114.114.114
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  use-hosts: true
+proxies:
+  - name: "proxy1"
+    type: ss
+    server: server1.com
+    port: 443
+    cipher: aes-256-gcm
+    password: password1
+  - name: "proxy2"
+    type: ss
+    server: server2.com
+    port: 443
+    cipher: aes-256-gcm
+    password: password2
+proxy-groups:
+  - name: Auto
+    type: url-test
+    proxies:
+      - direct-proxy
+      - Proxy
+  - name: Proxy
+    type: select
+    proxies:
+      - proxy1
+      - proxy2
+rules:
+  - DOMAIN-SUFFIX,google.com,Proxy
+  - DOMAIN-SUFFIX,youtube.com,Proxy
+  - MATCH,DIRECT
