@@ -3,3 +3,6 @@
 log/*
 config/*
 !config/.config.yaml
+data/
+clashmerge
+output/
