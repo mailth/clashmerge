@@ -22,15 +22,25 @@ build: build-frontend build-backend
 	cp -r web/out output/web
 
 build-image: build
-	@if [ -z "$(VERSION)" ]; then \
-		echo "Error: VERSION is not set. Usage: make build-image VERSION=v1.0.0"; \
-		exit 1; \
-	fi
-	@echo "Building image with version: $(VERSION)"
-	echo $(VERSION) > VERSION
+	VERSION= $(shell cat VERSION)
 	docker build -t mailth/clashmerge:$(VERSION) .
 	docker push mailth/clashmerge:$(VERSION)
 	@echo "Image built and pushed successfully: mailth/clashmerge:$(VERSION)"
+
+tag:
+	VERSION= $(shell cat VERSION)
+	git tag $(VERSION)
+	git push origin $(VERSION)
+
+update-version:
+	@if [ -z "$(VERSION)" ]; then \
+		echo "Error: VERSION is not set. Usage: make update-version VERSION=v1.0.0"; \
+		exit 1; \
+	fi
+	echo $(VERSION) > VERSION
+	git add VERSION
+	git commit -m "update version to $(VERSION)"
+	git push
 
 # Run in development mode
 run:
