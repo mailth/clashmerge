@@ -1,4 +1,4 @@
-.PHONY: build build-frontend build-backend run clean install-deps
+.PHONY: build build-frontend build-backend run clean install-deps version
 
 # Default target
 all: build
@@ -22,25 +22,36 @@ build: build-frontend build-backend
 	cp -r web/out output/web
 
 build-image: build
-	VERSION= $(shell cat VERSION)
+	VERSION=$(shell cat VERSION)
 	docker build -t mailth/clashmerge:$(VERSION) .
 	docker push mailth/clashmerge:$(VERSION)
 	@echo "Image built and pushed successfully: mailth/clashmerge:$(VERSION)"
 
 tag:
-	VERSION= $(shell cat VERSION)
+	VERSION=$(shell cat VERSION)
 	git tag $(VERSION)
 	git push origin $(VERSION)
 
-update-version:
-	@if [ -z "$(VERSION)" ]; then \
-		echo "Error: VERSION is not set. Usage: make update-version VERSION=v1.0.0"; \
-		exit 1; \
-	fi
-	echo $(VERSION) > VERSION
-	git add VERSION
-	git commit -m "update version to $(VERSION)"
-	git push . HEAD
+version:
+	CURRENT_VERSION=$(shell cat VERSION)
+	@# Support both "make version VERSION=v1.0.0" and "make version v1.0.0"
+	@if [ -n "$(filter-out version,$(MAKECMDGOALS))" ]; then \
+		VERSION_ARG="$(filter-out version,$(MAKECMDGOALS))"; \
+	elif [ -n "$(VERSION)" ]; then \
+		VERSION_ARG="$(VERSION)"; \
+	else \
+		echo "VERSION is not set. Usage: make version VERSION=v1.0.0 or make version v1.0.0"; \
+		exit 0; \
+	fi; \
+	echo $$VERSION_ARG > VERSION; \
+	git add . ; \
+	git commit -m "update version to $$VERSION_ARG"; \
+	git push origin HEAD; \
+	echo "[$$VERSION_ARG] Version file updated and pushed successfully"
+
+# Prevent make from treating version arguments as targets
+%:
+	@:
 
 # Run in development mode
 run:
