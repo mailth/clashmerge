@@ -40,7 +40,7 @@ update-version:
 	echo $(VERSION) > VERSION
 	git add VERSION
 	git commit -m "update version to $(VERSION)"
-	git push
+	git push . HEAD
 
 # Run in development mode
 run:
