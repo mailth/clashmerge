@@ -32,22 +32,8 @@ tag:
 	git tag $(VERSION)
 	git push origin $(VERSION)
 
-version:
-	CURRENT_VERSION=$(shell cat VERSION)
-	@# Support both "make version VERSION=v1.0.0" and "make version v1.0.0"
-	@if [ -n "$(filter-out version,$(MAKECMDGOALS))" ]; then \
-		VERSION_ARG="$(filter-out version,$(MAKECMDGOALS))"; \
-	elif [ -n "$(VERSION)" ]; then \
-		VERSION_ARG="$(VERSION)"; \
-	else \
-		echo "VERSION is not set. Usage: make version VERSION=v1.0.0 or make version v1.0.0"; \
-		exit 0; \
-	fi; \
-	echo $$VERSION_ARG > VERSION; \
-	git add . ; \
-	git commit -m "update version to $$VERSION_ARG"; \
-	git push origin HEAD; \
-	echo "[$$VERSION_ARG] Version file updated and pushed successfully"
+version: scripts/version.sh
+	@./scripts/version.sh "$(filter-out version,$(MAKECMDGOALS))" "$(VERSION)"
 
 # Prevent make from treating version arguments as targets
 %:
