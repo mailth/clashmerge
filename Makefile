@@ -1,4 +1,4 @@
-.PHONY: build build-frontend build-backend run clean install-deps
+.PHONY: build build-frontend build-backend run clean install-deps version
 
 # Default target
 all: build
@@ -13,6 +13,7 @@ build-frontend:
 
 # Build backend
 build-backend:
+	@echo "Building backend..."; \
 	GOOS=linux GOARCH=amd64 go build -o clashmerge .
 
 # Build both frontend and backend
@@ -21,16 +22,11 @@ build: build-frontend build-backend
 	cp clashmerge output/
 	cp -r web/out output/web
 
-build-image: build
-	@if [ -z "$(VERSION)" ]; then \
-		echo "Error: VERSION is not set. Usage: make build-image VERSION=v1.0.0"; \
-		exit 1; \
-	fi
-	@echo "Building image with version: $(VERSION)"
-	echo $(VERSION) > VERSION
-	docker build -t mailth/clashmerge:$(VERSION) .
-	docker push mailth/clashmerge:$(VERSION)
-	@echo "Image built and pushed successfully: mailth/clashmerge:$(VERSION)"
+
+
+# Prevent make from treating version arguments as targets
+%:
+	@:
 
 # Run in development mode
 run:

@@ -6,3 +6,4 @@ config/*
 data/
 clashmerge
 output/
+.github/version.sh
