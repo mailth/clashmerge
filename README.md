@@ -83,3 +83,7 @@ docker run -p host-port:8081 -v /host-path:/data mailth/clashmerge
 ### 关联配置
 
 在`链接配置`里关联`Merge 配置`就可以了。
+
+## 访问
+
+在 clash 软件里配置 `<域名>?name=<链接配置名称>` 即可。
