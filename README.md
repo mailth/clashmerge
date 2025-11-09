@@ -1,124 +1,85 @@
 # clashmerge
 
-用于将多个的 clash 配置文件合并成一个。也可以实现在某个 clash 配置的基础上进行修改。
+在原 clash 订阅链接的基础上添加新的规则生成新的订阅链接。
 
+## 部署
 
-
-### 配置文件格式
-
-```yaml
-- operation: merge
-  type: url
-  url: https://example.com/a.yaml # type 为 url 时生效
-
-- operation: merge # 合并方式，支持 merge 和 replace
-  type: data # 数据源类型
-  data: # 数据内容，当 type 是 data 时这个字段有效
-    num: 2
-    list: ["dave"]
-    list2: ["eric"]
-    obj:
-      age: 21
-      color: red
-
-
+```bash
+docker run -p host-port:8081 -v /host-path:/data mailth/clashmerge
 ```
 
-### 合并逻辑
+## 配置方式
 
-程序会按配置文件依次处理每项配置。
+进入服务管理页面 `<ip:port>/admin`。
+页面里的`链接配置`是指原本的 clash 链接。`merge 配置`是希望覆盖到原配置的内容。
 
-1. 首先根据 type 和对应的内容值获取配置内容
+### 创建链接配置
 
-2. 然后根据 operation 选择使用 merge 方式或者 replace 方式将当前内容与前一项得到的配置内容合并处理。
+首先在“链接配置”里配置原始的订阅链接。
+关联配置可以等会创件完 merge 配置后再关联。
 
-**merge 方式**
+![](doc/static/link.png)
 
-merge 方式下如果 yaml 文件一级键的值是数组，合并时会将新的内容追加到数组后。
+这里名称最好用英文，后面会用来生成新的订阅链接，英文的链接简短一些。
 
-如果一级键的值是字典，则新值会追加，旧值会覆盖。如果是其它简单的类型，比如字符串，新值会覆盖旧值。
+### 创建 Merge 配置
 
-```yaml
-- operation: merge 
-  type: data 
-  data: 
-    num: 2
-    list: ["dave"]
-    list2: ["eric"]
-    obj:
-      name: ace
-      color: red
-- operation: merge
-  type: data
-  data: 
-    num: 3
-    new_num: 4
-    list: ["dave", "eric"]
-    obj:
-      name: bob
-      color: blue
-```
+创建用于覆盖原链接的配置，目前主要可以配置`规则`，`代理`，`代理组`。
+配置好的内容会插入到原始链接配置的最前面。
 
-会得到
+![](doc/static/merge.png)
+
+#### 前置规则配置
+
+只要是符合 clash 的路由规则形式都可以在这里配置，比如
 
 ```yaml
-num: 3
-new_num: 4
-list: ["dave", "eric"]
-list2: ["eric"]
-obj:
-  name: bob
-  color: blue
+- DOMAIN,ad.com,REJECT
+- DOMAIN-SUFFIX,google.com,auto
+- DOMAIN-KEYWORD,google,auto
+- DOMAIN-WILDCARD,*.google.com,auto
+- DOMAIN-REGEX,^abc.*com,PROXY
+- GEOSITE,youtube,PROXY
+
+- IP-CIDR,127.0.0.0/8,DIRECT,no-resolve
+- IP-CIDR6,2620:0:2d0:200::7/32,auto
+- IP-SUFFIX,8.8.8.8/24,PROXY
+- IP-ASN,13335,DIRECT
+- GEOIP,CN,DIRECT
 ```
 
-**replace 方式**
+#### 前置代理配置
 
-相同键的值会被覆盖，可以用这种方式来实现删除。
-
-比如
+配置新的代理，比如
 
 ```yaml
-- operation: merge 
-  type: data 
-  data: 
-    num: 2
-    list: ["dave"]
-    list2: ["eric"]
-    obj:
-      name: ace
-      color: red
-- operation: replace
-  type: data
-  data: 
-    num: 3
-    list: ["dave"]
-    obj: {}
+- name: "ss1"
+  type: ss
+  server: server
+  port: 443
+  cipher: chacha20-ietf-poly1305
+  password: "password"
+- name: "ss2"
+  type: ss
+  server: server
+  port: 443
+  cipher: chacha20-ietf-poly1305
+  password: "password"
 ```
 
-会得到
+#### 前置代理组配置
+
+添加新的代理组
 
 ```yaml
-num: 3
-list: ["dave"]
-list2: ["eric"]
-obj: {}
+- name: Proxy
+  type: select
+  proxies:
+    - ss
+    - vmess
+    - auto
 ```
 
-### 部署
+### 关联配置
 
-docker-compose
-
-```yaml
-version: "3"
-services:
-  clashmerge:
-    image: mailth/clashmerge:latest
-    network_mode: host
-    environment:
-      PORT: 8081 # 服务端口
-      LOG_LEVEL: error # debug, info, warn, error.
-    volumes:
-      - "./_data:/data"
-```
-
-在 _data 目录里创建 config1.yaml 按上面的配置格式填好，然后访问 https://your-domain?name=config1.yaml 即可以得到合并后的配置文件。
+在`链接配置`里关联`Merge 配置`就可以了。
